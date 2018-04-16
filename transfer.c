@@ -2,8 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "mydirectories.h"
 #include "transfer.h"
+#include "mydirectories.h"
+
+char* getSRC() {
+  return SRC_PATH;
+}
 
 // determines which folder to put the file in
 void filter(char* filename) {

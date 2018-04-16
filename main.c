@@ -6,9 +6,9 @@
 int main() {
   DIR *dir;
   struct dirent *ent;
-  if ((dir = opendir (SRC_PATH)) != NULL) {
+  if ((dir = opendir(getSRC())) != NULL) {
     // print all the files and directories within directory
-    while ((ent = readdir (dir)) != NULL) {
+    while ((ent = readdir(dir)) != NULL) {
       filter(ent->d_name);
     }
     closedir (dir);
