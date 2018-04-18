@@ -1,4 +1,4 @@
-all: transfer main hw
+all: transfer main ftransfer
 
 main: main.c
 	gcc -c main.c
@@ -6,8 +6,8 @@ main: main.c
 transfer: transfer.c
 	gcc -c transfer.c
 
-hw: main.o transfer.o
-	gcc -o hw main.o transfer.o
+ftransfer: main.o transfer.o
+	gcc -o ftransfer main.o transfer.o
 	
 clean:
-	rm hw main.o transfer.o
+	rm ftransfer main.o transfer.o
