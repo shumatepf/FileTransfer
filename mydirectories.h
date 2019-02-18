@@ -8,8 +8,10 @@ char *C2 = "-CS482";
 char *C2_DIR = "~/school/spr19/cs482/";
 char *C3 = "-GEOL110";
 char *C3_DIR = "~/school/spr19/geol110/";
-char *C5 = "-ENG221";
-char *C5_DIR = "~/school/spr19/eng221/";
+char *C4 = "-ENG221";
+char *C4_DIR = "~/school/spr19/eng221/";
+char *C5 = "-NULL";
+char *C5_DIR = "nowhere";
 
 #endif
 
