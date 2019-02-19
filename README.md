@@ -10,5 +10,7 @@ Compile with `make` and clean with `make clean`.
 Save files with suffixes that match suffixes in the `mydirectories.h` header. Suffixes must begin with a hyphen in order
 to be properly read.
 
+There must be 5 directories. If unused, change the suffix to "-null" and the path to an empty string.
+
 Files must be saved to the designated source folder. Run the program and files will be sorted to corresponding folders based
 on their suffixes.
