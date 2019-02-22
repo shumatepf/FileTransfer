@@ -1,7 +1,7 @@
 #ifndef CONSTANT_FILE
 #define CONSTANT_FILE
 
-char *SRC_PATH = "~/Documents/school/SRC";
+char *SRC_PATH = "~/Documents/school/SRC/";
 char *C1 = "-CS430";
 char *C1_DIR = "~/school/spr19/cs430/";
 char *C2 = "-CS482";
