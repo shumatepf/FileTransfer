@@ -13,7 +13,7 @@ int main() {
     }
     closedir (dir);
   } else {
-    printf("ERROR: could not open directory\n");
+    printf("ERROR: could not open directory: %s\n", getSRC());
     return 1;
   }
 

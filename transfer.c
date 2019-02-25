@@ -44,16 +44,23 @@ void filter(char* filename) {
 
 // moves the file to the designated location
 void move(char *src, char *dest) {
+
+  char srccpy[strlen(src) * sizeof(char)];
+  strcpy(srccpy, src);
+
   //source location
   char dirsrc[(strlen(src) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char))];
   strcpy(dirsrc, SRC_PATH);
   strcat(dirsrc, src);
+  printf("%s = %s + %s\n", dirsrc, SRC_PATH, src);
   FILE *f1 = fopen(dirsrc, "r");
 
   //destination
   char dirdest[(strlen(src) * sizeof(char)) + (strlen(dest) * sizeof(char))];
   strcpy(dirdest, dest);
-  strcat(dirdest, src);
+  printf("%s\n", srccpy);
+  strcat(dirdest, srccpy);
+  printf("%s\n", dirsrc);
   FILE *f2 = fopen(dirdest, "w");
 
   printf("Source: %s\n", dirsrc);
@@ -75,5 +82,7 @@ void move(char *src, char *dest) {
   //closing file objects and removing the source file
   fclose(f1);
   fclose(f2);
-  remove(dirsrc);
+  if(remove(dirsrc) == -1) {
+  	printf("File failed to be removed: %s\n", dirsrc);
+  }
 }

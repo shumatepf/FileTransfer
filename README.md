@@ -14,3 +14,5 @@ There must be 5 directories. If unused, change the suffix to `-NULL` and the pat
 
 Files must be saved to the designated source folder. Run the program and files will be sorted to corresponding folders based
 on their suffixes.
+
+Currently bugged - issue using strcat twice with same string
