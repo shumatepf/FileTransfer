@@ -21,7 +21,8 @@ void filter(char* filename) {
 
   // determines if the suffix is valid and where to transfer the file
   if (suffix == NULL) {
-    return;
+  	if (strcmp(filename, ".") != 0 && strcmp(filename, ".."))
+	  printf("UNKNOWN: %s\n", filename);
   } else if (strcmp(suffix, C1) == 0) {
     printf("%s\n", C1);
     move(filename, C1_DIR);
@@ -52,15 +53,13 @@ void move(char *src, char *dest) {
   char dirsrc[(strlen(src) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char))];
   strcpy(dirsrc, SRC_PATH);
   strcat(dirsrc, src);
-  printf("%s = %s + %s\n", dirsrc, SRC_PATH, src);
   FILE *f1 = fopen(dirsrc, "r");
+  char dirsrc2[(strlen(src) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char))];
 
   //destination
-  char dirdest[(strlen(src) * sizeof(char)) + (strlen(dest) * sizeof(char))];
+  char dirdest[(strlen(srccpy) * sizeof(char)) + (strlen(dest) * sizeof(char))];
   strcpy(dirdest, dest);
-  printf("%s\n", srccpy);
   strcat(dirdest, srccpy);
-  printf("%s\n", dirsrc);
   FILE *f2 = fopen(dirdest, "w");
 
   printf("Source: %s\n", dirsrc);
