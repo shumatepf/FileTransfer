@@ -21,8 +21,8 @@ void filter(char* filename) {
 
   // determines if the suffix is valid and where to transfer the file
   if (suffix == NULL) {
-  	if (strcmp(filename, ".") != 0 && strcmp(filename, ".."))
-	  printf("UNKNOWN: %s\n", filename);
+    if (strcmp(filename, ".") != 0 && strcmp(filename, ".."))
+      printf("UNKNOWN: %s\n", filename);
   } else if (strcmp(suffix, C1) == 0) {
     printf("%s\n", C1);
     move(filename, C1_DIR);
@@ -81,6 +81,6 @@ void move(char *src, char *dest) {
   fclose(f2);
   printf("%s\n", dirsrc);
   if(remove(dirsrc) == -1) {
-  	printf("File failed to be removed: %s\n", dirsrc);
+    printf("File failed to be removed: %s\n", dirsrc);
   }
 }
