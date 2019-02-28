@@ -12,7 +12,18 @@ to be properly read.
 
 There must be 5 directories. If unused, change the suffix to `-NULL` and the path to an empty string.
 
-Files must be saved to the designated source folder. Run the program and files will be sorted to corresponding folders based
-on their suffixes.
+Files must be saved to the designated source folder. Run the program and files will be sorted to corresponding folders based on their suffixes.
 
-Currently bugged - issue using strcat twice with same string
+## Running in the background
+The file `watch.py` can be executed to check for new files every 10 seconds and
+can be ran in the background. This requires python to be installed. I am not
+sure which version is required but I reccomend the most recent version as I am
+using 3.7.
+
+To run on startup, add `python3.7 path/to/file/watch.py` to your startup thing
+you have going on for your system.
+
+For example, I am using i3wm and i have `exec_always
+python3.7/home/peter/Documents/FileTransfer/watch.py` in my i3 config file.
+
+
