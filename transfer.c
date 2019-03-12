@@ -11,6 +11,7 @@ char* getSRC() {
 
 // determines which folder to put the file in
 void filter(char* filename) {
+  // filter for current and previous directory and the do not delete file
   if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0 ||
       strcmp(filename, "donot.delete") == 0) {
     return;
@@ -20,11 +21,15 @@ void filter(char* filename) {
   char noext[strlen(filename) * sizeof(char)];
   strcpy(noext, filename);
   *strstr(noext, ".") = 0;
+
+  // new string for the suffix in the filename
   char *suffix = strchr(noext, '-');
 
+  // new string with no suffix
   char nosuff[strlen(filename) * sizeof(char)];
   strcpy(nosuff, filename);
 
+  // removing suffix from string
   char *p = strchr(nosuff, '-');
   if (!p)
     return;
@@ -33,11 +38,10 @@ void filter(char* filename) {
   // extension
   char *ext = strrchr(filename, '.');
 
+  // new string = filename (w/o suffix) + extension
   char nfname[strlen(nosuff) * sizeof(char) + strlen(ext) * sizeof(char)];
   strcpy(nfname, nosuff);
   strcat(nfname, ext);
-
-  // new string for the suffix in the filename
 
   char *dest;
 
@@ -67,13 +71,12 @@ void filter(char* filename) {
     return;
   }
 
-  /*char srccpy[strlen() * sizeof(char)];
-    strcpy(srccpy, filename);*/
-
+  // new string = source path + filename
   char dirsrc[(strlen(filename) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char)) + 100];
   strcpy(dirsrc, SRC_PATH);
   strcat(dirsrc, filename);
 
+  // new string = destination source + new filename (w/o suffix)
   char dirdest[(strlen(nfname) * sizeof(char)) + (strlen(dest) * sizeof(char)) + 100];
   strcpy(dirdest, dest);
   strcat(dirdest, nfname);
@@ -89,9 +92,11 @@ void move(char *src, char *dest) {
   //destination
   FILE *f2 = fopen(dest, "w");
 
+  // print the expected source/destination
   printf("Source: %s\n", src);
   printf("Dest: %s\n", dest);
 
+  // checks if the opened files actually exist
   if (!f1) {
     printf("ERROR: file does not exist [%s]\n", src);
   }
@@ -99,16 +104,17 @@ void move(char *src, char *dest) {
     printf("ERROR: file cannot be written [%s]\n", dest);
   }
 
-  //copying over information
+  // copying over information
+  // this is probably the most important code
   int i;
   while((i = fgetc(f1)) != EOF) {
     fputc(i, f2);
   }
 
-  //closing file objects and removing the source file
+  // closing file objects and removing the source file
   fclose(f1);
   fclose(f2);
-  //printf("%s\n", src);
+
   if(remove(src) == -1) {
     printf("File failed to be removed: %s\n", src);
   }

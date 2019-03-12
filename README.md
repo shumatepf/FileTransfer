@@ -2,6 +2,8 @@
 This program is a tool to automatically sort files from a source folder into designated folders.
 
 ## Set up
+Clone this directory.
+
 The directories currently in the `mydirectories.h` header should be changed to match desired directories.
 
 Compile with `make` and clean with `make clean`.
