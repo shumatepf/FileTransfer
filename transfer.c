@@ -11,63 +11,92 @@ char* getSRC() {
 
 // determines which folder to put the file in
 void filter(char* filename) {
+  if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0 ||
+      strcmp(filename, "donot.delete") == 0) {
+    return;
+  }
+
   // new string that does not contain the file type (.txt, .doc, etc)
-  char shortened[strlen(filename) * sizeof(char)];
-  strcpy(shortened, filename);
-  *strstr(shortened, ".") = 0;
+  char noext[strlen(filename) * sizeof(char)];
+  strcpy(noext, filename);
+  *strstr(noext, ".") = 0;
+  char *suffix = strchr(noext, '-');
+
+  char nosuff[strlen(filename) * sizeof(char)];
+  strcpy(nosuff, filename);
+
+  char *p = strchr(nosuff, '-');
+  if (!p)
+    return;
+  *p = 0;
+
+  // extension
+  char *ext = strrchr(filename, '.');
+
+  char nfname[strlen(nosuff) * sizeof(char) + strlen(ext) * sizeof(char)];
+  strcpy(nfname, nosuff);
+  strcat(nfname, ext);
 
   // new string for the suffix in the filename
-  char *suffix = strchr(shortened, '-');
+
+  char *dest;
 
   // determines if the suffix is valid and where to transfer the file
   if (suffix == NULL) {
-    if (strcmp(filename, ".") != 0 && strcmp(filename, ".."))
-      printf("UNKNOWN: %s\n", filename);
+    if (strcmp(filename, ".") != 0 && strcmp(filename, "..")) {
+      printf("UNKNOWN %s\n", filename);
+    }
+    return;
   } else if (strcmp(suffix, C1) == 0) {
     printf("%s\n", C1);
-    move(filename, C1_DIR);
+    dest = C1_DIR;
   } else if (strcmp(suffix, C2) == 0) {
     printf("%s\n", C2);
-    move(filename, C2_DIR);
+    dest = C2_DIR;
   } else if (strcmp(suffix, C3) == 0) {
     printf("%s\n", C3);
-    move(filename, C3_DIR);
+    dest = C3_DIR;
   } else if (strcmp(suffix, C4) == 0) {
     printf("%s\n", C4);
-    move(filename, C4_DIR);
+    dest = C4_DIR;
   } else if (strcmp(suffix, C5) == 0) {
     printf("%s\n", C5);
-    move(filename, C5_DIR);
+    dest = C5_DIR;
   } else {
-    printf("UNKNOWN: %s\n", filename);
+    printf("Directory not specified for file: %s\n", filename);
+    return;
   }
+
+  /*char srccpy[strlen() * sizeof(char)];
+    strcpy(srccpy, filename);*/
+
+  char dirsrc[(strlen(filename) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char)) + 100];
+  strcpy(dirsrc, SRC_PATH);
+  strcat(dirsrc, filename);
+
+  char dirdest[(strlen(nfname) * sizeof(char)) + (strlen(dest) * sizeof(char)) + 100];
+  strcpy(dirdest, dest);
+  strcat(dirdest, nfname);
+  move(dirsrc, dirdest);
 }
 
 // moves the file to the designated location
 void move(char *src, char *dest) {
-  char srccpy[strlen(src) * sizeof(char)];
-  strcpy(srccpy, src);
 
   //source location - size increase by 100 as a buffer. need to fix
-  char dirsrc[(strlen(src) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char)) + 100];
-  strcpy(dirsrc, SRC_PATH);
-  strcat(dirsrc, src);
-  FILE *f1 = fopen(dirsrc, "r");
+  FILE *f1 = fopen(src, "r");
 
   //destination
-  char dirdest[(strlen(srccpy) * sizeof(char)) + (strlen(dest) * sizeof(char)) + 100];
-  strcpy(dirdest, dest);
-  strcat(dirdest, src);
-  FILE *f2 = fopen(dirdest, "w");
+  FILE *f2 = fopen(dest, "w");
 
-  printf("Source: %s\n", dirsrc);
-  printf("Dest: %s\n", dirdest);
+  printf("Source: %s\n", src);
+  printf("Dest: %s\n", dest);
 
   if (!f1) {
-    printf("ERROR: file does not exist [%s]\n", dirsrc);
+    printf("ERROR: file does not exist [%s]\n", src);
   }
   if (!f2) {
-    printf("ERROR: file cannot be written [%s]\n", dirdest);
+    printf("ERROR: file cannot be written [%s]\n", dest);
   }
 
   //copying over information
@@ -79,8 +108,8 @@ void move(char *src, char *dest) {
   //closing file objects and removing the source file
   fclose(f1);
   fclose(f2);
-  printf("%s\n", dirsrc);
-  if(remove(dirsrc) == -1) {
-    printf("File failed to be removed: %s\n", dirsrc);
+  //printf("%s\n", src);
+  if(remove(src) == -1) {
+    printf("File failed to be removed: %s\n", src);
   }
 }
