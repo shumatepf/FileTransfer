@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -81,37 +82,47 @@ void filter(char* filename) {
 
 // moves the file to the designated location
 void move(char *src, char *dest) {
-
-  //source location - size increase by 100 as a buffer. need to fix
-  FILE *f1 = fopen(src, "r");
-
-  //destination
-  FILE *f2 = fopen(dest, "w");
-
   // print the expected source/destination
   printf("Source: %s\n", src);
   printf("Dest: %s\n", dest);
 
-  // checks if the opened files actually exist
-  if (!f1) {
-    printf("ERROR: file does not exist [%s]\n", src);
+  if (access(src, R_OK) == -1) {
+    char *msg;
+    switch (errno) {
+      case EACCES:
+        msg = "ERROR: insufficient permissions to read [%s]\n";
+        break;
+      case ENOENT:
+        msg = "ERROR: file does not exist [%s]\n";
+        break;
+      default:
+        msg = "ERROR: unable to access [%s]\n";
+        break;
+    }
+    fprintf(stderr, msg, src);
+    return;
   }
-  if (!f2) {
-    printf("ERROR: file cannot be written [%s]\n", dest);
+
+  if (access(dest, W_OK) == -1) {
+    char *msg;
+    switch (errno) {
+      case EACCES:
+        msg = "ERROR: insufficient permissions to write [%s]\n";
+        break;
+      case ENOENT:
+        msg = "ERROR: a parent directory does not exist [%s]\n";
+        break;
+      case ENOTDIR:
+        msg = "ERROR: a parent directory is not a directory [%s]\n";
+        break;
+      default:
+        msg = "ERROR: unable to access [%s]\n";
+        break;
+    }
+    fprintf(stderr, msg, dest);
+    return;
   }
 
   // copying over information
-  // this is probably the most important code
-  int i;
-  while((i = fgetc(f1)) != EOF) {
-    fputc(i, f2);
-  }
-
-  // closing file objects and removing the source file
-  fclose(f1);
-  fclose(f2);
-
-  if(remove(src) == -1) {
-    printf("File failed to be removed: %s\n", src);
-  }
+  rename(src, dest);
 }
