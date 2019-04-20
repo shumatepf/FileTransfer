@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,105 +18,111 @@ void filter(char* filename) {
     return;
   }
 
-  // new string that does not contain the file type (.txt, .doc, etc)
-  char noext[strlen(filename) * sizeof(char)];
-  strcpy(noext, filename);
-  *strstr(noext, ".") = 0;
+  size_t base_len = strlen(filename) + 1;
+  char file[base_len];
+  strcpy(file, filename);
 
-  // new string for the suffix in the filename
-  char *suffix = strchr(noext, '-');
+  char *extension = strrchr(file, '.');
+  if (!extension) return;
+  size_t ext_len = strlen(extension);
+  *extension = 0;
+  extension += 1;
 
-  // new string with no suffix
-  char nosuff[strlen(filename) * sizeof(char)];
-  strcpy(nosuff, filename);
+  char *suffix = strrchr(file, '-');
+  if (!suffix) return;
+  size_t suffix_len = strlen(suffix);
+  *suffix = 0;
+  suffix += 1;
 
-  // removing suffix from string
-  char *p = strchr(nosuff, '-');
-  if (!p)
-    return;
-  *p = 0;
+  char *dest = NULL;
 
-  // extension
-  char *ext = strrchr(filename, '.');
-
-  // new string = filename (w/o suffix) + extension
-  char nfname[strlen(nosuff) * sizeof(char) + strlen(ext) * sizeof(char)];
-  strcpy(nfname, nosuff);
-  strcat(nfname, ext);
-
-  char *dest;
-
-  // determines if the suffix is valid and where to transfer the file
   if (suffix == NULL) {
-    if (strcmp(filename, ".") != 0 && strcmp(filename, "..")) {
+    if (strcmp(filename, ".") != 0 && strcmp(filename, "..") != 0) {
       printf("UNKNOWN %s\n", filename);
     }
     return;
-  } else if (strcmp(suffix, C1) == 0) {
-    printf("%s\n", C1);
-    dest = C1_DIR;
-  } else if (strcmp(suffix, C2) == 0) {
-    printf("%s\n", C2);
-    dest = C2_DIR;
-  } else if (strcmp(suffix, C3) == 0) {
-    printf("%s\n", C3);
-    dest = C3_DIR;
-  } else if (strcmp(suffix, C4) == 0) {
-    printf("%s\n", C4);
-    dest = C4_DIR;
-  } else if (strcmp(suffix, C5) == 0) {
-    printf("%s\n", C5);
-    dest = C5_DIR;
-  } else {
+  }
+
+  for (size_t i = 0; i < num_courses; i++) {
+    course_t course = courses[i];
+    if (strcmp(suffix, course.name) == 0) {
+      printf("%s\n", course.name);
+      dest = course.path;
+      break;
+    }
+  }
+
+  if (dest == NULL) {
     printf("Directory not specified for file: %s\n", filename);
+    printf("Suffix: %s\nExt:    %s\n", suffix, extension);
     return;
   }
 
+  size_t new_name_len = base_len - suffix_len;
+  char *nfname = malloc(new_name_len);
+  snprintf(nfname, new_name_len, "%s.%s", file, extension);
+
   // new string = source path + filename
-  char dirsrc[(strlen(filename) * sizeof(char)) + (strlen(SRC_PATH) * sizeof(char)) + 100];
-  strcpy(dirsrc, SRC_PATH);
-  strcat(dirsrc, filename);
+  size_t src_len = base_len + (strlen(SRC_PATH) * sizeof(char));
+  char *dirsrc = malloc(src_len);
+  snprintf(dirsrc, src_len, "%s%s", SRC_PATH, filename);
 
   // new string = destination source + new filename (w/o suffix)
-  char dirdest[(strlen(nfname) * sizeof(char)) + (strlen(dest) * sizeof(char)) + 100];
-  strcpy(dirdest, dest);
-  strcat(dirdest, nfname);
+  size_t dest_len = new_name_len + (strlen(dest) * sizeof(char));
+  char *dirdest = malloc(dest_len);
+  snprintf(dirdest, dest_len, "%s%s", dest, nfname);
+
+  free(nfname);
+
   move(dirsrc, dirdest);
+
+  free(dirdest);
+  free(dirsrc);
 }
 
 // moves the file to the designated location
 void move(char *src, char *dest) {
-
-  //source location - size increase by 100 as a buffer. need to fix
-  FILE *f1 = fopen(src, "r");
-
-  //destination
-  FILE *f2 = fopen(dest, "w");
-
   // print the expected source/destination
   printf("Source: %s\n", src);
   printf("Dest: %s\n", dest);
 
-  // checks if the opened files actually exist
-  if (!f1) {
-    printf("ERROR: file does not exist [%s]\n", src);
+  if (access(src, R_OK) == -1) {
+    char *msg;
+    switch (errno) {
+      case EACCES:
+        msg = "ERROR: insufficient permissions to read [%s]\n";
+        break;
+      case ENOENT:
+        msg = "ERROR: file does not exist [%s]\n";
+        break;
+      default:
+        msg = "ERROR: unable to access [%s]\n";
+        break;
+    }
+    fprintf(stderr, msg, src);
+    return;
   }
-  if (!f2) {
-    printf("ERROR: file cannot be written [%s]\n", dest);
+
+  if (access(dest, W_OK) == -1) {
+    char *msg;
+    switch (errno) {
+      case EACCES:
+        msg = "ERROR: insufficient permissions to write [%s]\n";
+        break;
+      case ENOENT:
+        msg = "ERROR: a parent directory does not exist [%s]\n";
+        break;
+      case ENOTDIR:
+        msg = "ERROR: a parent directory is not a directory [%s]\n";
+        break;
+      default:
+        msg = "ERROR: unable to access [%s]\n";
+        break;
+    }
+    fprintf(stderr, msg, dest);
+    return;
   }
 
   // copying over information
-  // this is probably the most important code
-  int i;
-  while((i = fgetc(f1)) != EOF) {
-    fputc(i, f2);
-  }
-
-  // closing file objects and removing the source file
-  fclose(f1);
-  fclose(f2);
-
-  if(remove(src) == -1) {
-    printf("File failed to be removed: %s\n", src);
-  }
+  rename(src, dest);
 }
